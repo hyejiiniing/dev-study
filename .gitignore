@@ -1,0 +1,16 @@
+# 빌드 결과
+target/
+bin/
+*.class
+
+# Eclipse 개인 설정
+.metadata/
+.settings/
+.classpath
+.project
+
+# macOS
+.DS_Store
+
+# 로그
+*.log

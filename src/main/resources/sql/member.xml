@@ -17,27 +17,27 @@
     
     <resultMap id="memberResultMap"
            type="com.devstudy.vo.MemberVO">
-	    <id column="member_id" property="memberIdx"/>
+	    <id column="memberIdx" property="memberIdx"/>
 	    <result column="email" property="email"/>
-	    <result column="password_hash" property="password"/>
+	    <result column="password" property="password"/>
 	    <result column="nickname" property="nickname"/>
 	    <result column="role" property="role"/>
 	    <result column="status" property="status"/>
-	    <result column="created_at" property="createdAt"/>
-	    <result column="updated_at" property="updatedAt"/>
+	    <result column="createdAt" property="createdAt"/>
+	    <result column="updatedAt" property="updatedAt"/>
 	</resultMap>
 	
 	<select id="selectMemberByEmail"
 	        parameterType="com.devstudy.vo.MemberVO"
 	        resultMap="memberResultMap">
-	    SELECT member_id,
+	    SELECT memberIdx,
 	           email,
-	           password_hash,
+	           password,
 	           nickname,
 	           role,
 	           status,
-	           created_at,
-	           updated_at
+	           createdAt,
+	           updatedAt
 	    FROM members
 	    WHERE email = #{email}
 	</select>

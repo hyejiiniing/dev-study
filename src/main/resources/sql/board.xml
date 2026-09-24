@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.devstudy.mapper.BoardMapper">
+
+    <select id="selectBoardList"
+            parameterType="com.devstudy.vo.BoardVO"
+            resultType="com.devstudy.vo.BoardVO">
+        SELECT boardIdx,
+               boardType,
+               category,
+               memberIdx,
+               title,
+               viewCount,
+               createdAt,
+               updatedAt
+        FROM board
+        WHERE boardType = #{boardType}
+        ORDER BY boardIdx DESC
+        LIMIT 20
+    </select>
+    
+    <insert id="insertBoard"
+	        parameterType="com.devstudy.vo.BoardVO"
+	        useGeneratedKeys="true"
+	        keyProperty="boardIdx">
+	
+	    INSERT INTO board (
+	        boardType,
+	        category,
+	        memberIdx,
+	        title,
+	        content
+	    ) VALUES (
+	        #{boardType},
+	        #{category},
+	        #{memberIdx},
+	        #{title},
+	        #{content}
+	    )
+	
+	</insert>
+
+</mapper>

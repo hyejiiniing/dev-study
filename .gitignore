@@ -14,3 +14,6 @@ bin/
 
 # 로그
 *.log
+
+# 로컬 DB 접속 정보
+/src/main/resources/db.properties

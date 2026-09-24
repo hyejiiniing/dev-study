@@ -14,5 +14,32 @@
         INSERT INTO members(email,password_hash,nickname) 
         VALUES (#{email}, #{password}, #{nickname})
     </insert>
+    
+    <resultMap id="memberResultMap"
+           type="com.devstudy.vo.MemberVO">
+	    <id column="member_id" property="memberIdx"/>
+	    <result column="email" property="email"/>
+	    <result column="password_hash" property="password"/>
+	    <result column="nickname" property="nickname"/>
+	    <result column="role" property="role"/>
+	    <result column="status" property="status"/>
+	    <result column="created_at" property="createdAt"/>
+	    <result column="updated_at" property="updatedAt"/>
+	</resultMap>
+	
+	<select id="selectMemberByEmail"
+	        parameterType="com.devstudy.vo.MemberVO"
+	        resultMap="memberResultMap">
+	    SELECT member_id,
+	           email,
+	           password_hash,
+	           nickname,
+	           role,
+	           status,
+	           created_at,
+	           updated_at
+	    FROM members
+	    WHERE email = #{email}
+	</select>
 
 </mapper>

@@ -2,6 +2,7 @@ package com.devstudy.controller;
 
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.devstudy.form.SignupForm;
 import com.devstudy.service.MemberService;
+import com.devstudy.vo.MemberVO;
 
 @Controller
 @RequestMapping("/member")
@@ -77,5 +79,63 @@ public class MemberController {
             form.setPassword(null);
             form.setPasswordConfirm(null);
         }
+    }
+    
+    @GetMapping("/signin")
+    public String signinForm(HttpSession session) {
+
+        if (session.getAttribute("signinToken") == null) {
+            session.setAttribute(
+                    "signinToken", UUID.randomUUID().toString());
+        }
+
+        return "member/signin";
+    }
+    
+    @PostMapping("/signin")
+    public String signin(
+            @RequestParam(value = "email", defaultValue = "") String email,
+            @RequestParam(value = "password", defaultValue = "") String password,
+            @RequestParam(value = "signinToken", required = false)
+            String signinToken,
+            HttpServletRequest request,
+            Model model) throws Exception {
+
+        HttpSession session = request.getSession();
+        String expectedToken =
+                (String) session.getAttribute("signinToken");
+
+        if (expectedToken == null || !expectedToken.equals(signinToken)) {
+            model.addAttribute(
+                    "errorMessage", "로그인 화면을 새로 열고 다시 시도해주세요.");
+            return "member/signin";
+        }
+
+        MemberVO vo = new MemberVO();
+        vo.setEmail(email);
+        vo.setPassword(password);
+
+        MemberVO member;
+        try {
+            member = memberService.signin(vo);
+        } finally {
+            vo.setPassword(null);
+        }
+
+        if (member == null) {
+            model.addAttribute(
+                    "errorMessage", "이메일 또는 비밀번호를 확인해주세요.");
+            return "member/signin";
+        }
+
+        request.changeSessionId();
+        session.setMaxInactiveInterval(30 * 60);
+
+        session.setAttribute("loginMemberIdx", member.getMemberIdx());
+        session.setAttribute("loginNickname", member.getNickname());
+        session.setAttribute("loginRole", member.getRole());
+        session.removeAttribute("signinToken");
+
+        return "redirect:/home";
     }
 }

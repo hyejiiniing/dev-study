@@ -8,6 +8,21 @@
     <title>DevStudy</title>
 </head>
 <body>
+<c:choose>
+    <c:when test="${not empty sessionScope.loginMemberIdx}">
+        <p>
+            <strong>
+                <c:out value="${sessionScope.loginNickname}"/>
+            </strong>님, 반가워요!
+        </p>
+    </c:when>
+
+    <c:otherwise>
+        <a href="${pageContext.request.contextPath}/member/signin">
+            로그인
+        </a>
+    </c:otherwise>
+</c:choose>
 <c:if test="${not empty successMessage}">
     <p role="status">
         <c:out value="${successMessage}"/>

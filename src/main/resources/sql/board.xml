@@ -42,5 +42,39 @@
 	    )
 	
 	</insert>
+	
+	<select id="selectBoard"
+	        parameterType="com.devstudy.vo.BoardVO"
+	        resultType="com.devstudy.vo.BoardVO">
+	    SELECT boardIdx,
+	           boardType,
+	           category,
+	           memberIdx,
+	           title,
+	           content,
+	           viewCount,
+	           createdAt,
+	           updatedAt
+	    FROM board
+	    WHERE boardIdx = #{boardIdx}
+	</select>
+	
+	<update id="updateBoard"
+	        parameterType="com.devstudy.vo.BoardVO">
+	    UPDATE board
+	    SET category = #{category},
+	        title = #{title},
+	        content = #{content},
+	        updatedAt = CURRENT_TIMESTAMP
+	    WHERE boardIdx = #{boardIdx}
+	      AND memberIdx = #{memberIdx}
+	</update>
+	
+	<delete id="deleteBoard"
+	        parameterType="com.devstudy.vo.BoardVO">
+	    DELETE FROM board
+	    WHERE boardIdx = #{boardIdx}
+	      AND memberIdx = #{memberIdx}
+	</delete>
 
 </mapper>

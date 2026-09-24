@@ -1,5 +1,6 @@
 package com.devstudy.controller;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
@@ -151,5 +152,171 @@ public class BoardController {
         };
 
         return names[boardType];
+    }
+    
+    @GetMapping("/detail")
+    public String detail(
+            @RequestParam int boardIdx,
+            HttpSession session,
+            Model model) throws Exception {
+
+        BoardVO board = findBoard(boardIdx);
+
+        prepareBoardActionToken(session);
+        model.addAttribute("board", board);
+        model.addAttribute("boardName", getBoardName(board.getBoardType()));
+
+        return "board/detail";
+    }
+
+    @GetMapping("/update")
+    public String updateForm(
+            @RequestParam int boardIdx,
+            HttpSession session,
+            Model model) throws Exception {
+
+        if (session.getAttribute("loginMemberIdx") == null) {
+            return "redirect:/member/signin";
+        }
+
+        BoardVO board = findBoard(boardIdx);
+        checkBoardOwner(board, session);
+
+        prepareBoardActionToken(session);
+        model.addAttribute("board", board);
+        model.addAttribute("boardName", getBoardName(board.getBoardType()));
+
+        return "board/update";
+    }
+
+    @PostMapping("/update")
+    public String update(
+            @RequestParam int boardIdx,
+            @RequestParam(defaultValue = "") String title,
+            @RequestParam(defaultValue = "") String content,
+            @RequestParam(defaultValue = "") String category,
+            @RequestParam(value = "actionToken", required = false)
+            String actionToken,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes) throws Exception {
+
+        if (session.getAttribute("loginMemberIdx") == null) {
+            return "redirect:/member/signin";
+        }
+
+        checkBoardActionToken(session, actionToken);
+
+        BoardVO board = findBoard(boardIdx);
+        checkBoardOwner(board, session);
+
+        board.setTitle(title);
+        board.setContent(content);
+        board.setCategory(category);
+
+        try {
+            boardService.updateBoard(
+                    board, (Long) session.getAttribute("loginMemberIdx"));
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("board", board);
+            model.addAttribute("boardName", getBoardName(board.getBoardType()));
+            model.addAttribute("errorMessage", e.getMessage());
+            return "board/update";
+        }
+
+        redirectAttributes.addFlashAttribute(
+                "successMessage", "게시글이 수정되었습니다.");
+
+        return "redirect:/board/detail?boardIdx=" + boardIdx;
+    }
+
+    @PostMapping("/delete")
+    public String delete(
+            @RequestParam int boardIdx,
+            @RequestParam(value = "actionToken", required = false)
+            String actionToken,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) throws Exception {
+
+        if (session.getAttribute("loginMemberIdx") == null) {
+            return "redirect:/member/signin";
+        }
+
+        checkBoardActionToken(session, actionToken);
+
+        BoardVO board = findBoard(boardIdx);
+        checkBoardOwner(board, session);
+
+        try {
+            boardService.deleteBoard(
+                    board, (Long) session.getAttribute("loginMemberIdx"));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, e.getMessage(), e);
+        }
+
+        redirectAttributes.addFlashAttribute(
+                "successMessage", "게시글이 삭제되었습니다.");
+
+        return "redirect:/board/list?boardType=" + board.getBoardType();
+    }
+
+    private BoardVO findBoard(int boardIdx) throws Exception {
+
+        if (boardIdx <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "올바르지 않은 게시글 번호입니다.");
+        }
+
+        BoardVO condition = new BoardVO();
+        condition.setBoardIdx(boardIdx);
+
+        BoardVO board = boardService.selectBoard(condition);
+
+        if (board == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다.");
+        }
+
+        return board;
+    }
+
+    private void checkBoardOwner(BoardVO board, HttpSession session) {
+
+        Long loginMemberIdx =
+                (Long) session.getAttribute("loginMemberIdx");
+
+        if (loginMemberIdx == null
+                || !Objects.equals(loginMemberIdx, board.getMemberIdx())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "본인이 작성한 글만 변경할 수 있습니다.");
+        }
+
+        if (board.getBoardType() == 6
+                && !"ADMIN".equals(session.getAttribute("loginRole"))) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "공지사항 변경 권한이 없습니다.");
+        }
+    }
+
+    private void prepareBoardActionToken(HttpSession session) {
+
+        if (session.getAttribute("boardActionToken") == null) {
+            session.setAttribute(
+                    "boardActionToken", UUID.randomUUID().toString());
+        }
+    }
+
+    private void checkBoardActionToken(
+            HttpSession session, String actionToken) {
+
+        String expected =
+                (String) session.getAttribute("boardActionToken");
+
+        if (expected == null || !expected.equals(actionToken)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "화면을 새로 열고 다시 시도해주세요.");
+        }
     }
 }

@@ -358,9 +358,10 @@
                                                 <c:out value="${board.category}"/>
                                             </span>
                                         </c:if>
-                                        <span class="post-title">
-                                            <c:out value="${board.title}"/>
-                                        </span>
+                                        <a class="post-title"
+										   href="${pageContext.request.contextPath}/board/detail?boardIdx=${board.boardIdx}">
+										    <c:out value="${board.title}"/>
+										</a>
                                     </td>
                                     <td class="views">
                                         <c:out value="${board.viewCount}"/>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.devstudy.mapper.MemberMapper">
+
+    <select id="memberCnt" resultType="int">
+        SELECT COUNT(*)
+        FROM members
+    </select>
+    
+     <insert id="insertMember" parameterType="com.devstudy.vo.MemberVO" useGeneratedKeys="true" keyProperty="memberIdx" keyColumn="member_id">
+        INSERT INTO members(email,password_hash,nickname) 
+        VALUES (#{email}, #{password}, #{nickname})
+    </insert>
+
+</mapper>

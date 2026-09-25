@@ -148,6 +148,82 @@ input:focus, textarea:focus {
     line-height: 1.7;
 }
 
+.file-section-title {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.file-hint {
+    margin: 8px 0 12px;
+    color: #707070;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.existing-files {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.file-delete-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 14px;
+    border: 1px solid #e2e2e2;
+    border-radius: 9px;
+    background: #fafafa;
+    cursor: pointer;
+}
+
+.file-delete-option input[type="checkbox"] {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    accent-color: #171717;
+}
+
+.file-original-name {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 13px;
+    font-weight: 400;
+}
+
+.delete-label {
+    flex-shrink: 0;
+    color: #707070;
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.file-delete-option:has(input:checked) {
+    border-color: #171717;
+    background: #ededed;
+}
+
+input[type="file"] {
+    font-size: 12px;
+}
+
+input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    color: #171717;
+    cursor: pointer;
+}
+
 a:focus-visible, button:focus-visible {
     outline: 2px solid #171717;
     outline-offset: 4px;

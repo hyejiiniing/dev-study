@@ -281,7 +281,7 @@ public class BoardController {
                 .header("X-Content-Type-Options", "nosniff")
                 .body(resource);
     }
-
+    
     @GetMapping("/update")
     public String updateForm(
             @RequestParam int boardIdx,
@@ -296,8 +296,14 @@ public class BoardController {
         checkBoardOwner(board, session);
 
         prepareBoardActionToken(session);
+
+        BoardFileVO condition = new BoardFileVO();
+        condition.setBoardIdx(boardIdx);
+
         model.addAttribute("board", board);
         model.addAttribute("boardName", getBoardName(board.getBoardType()));
+        model.addAttribute(
+                "fileList", boardService.selectBoardFileList(condition));
 
         return "board/update";
     }
@@ -308,6 +314,10 @@ public class BoardController {
             @RequestParam(defaultValue = "") String title,
             @RequestParam(defaultValue = "") String content,
             @RequestParam(defaultValue = "") String category,
+            @RequestParam(value = "files", required = false)
+            List<MultipartFile> files,
+            @RequestParam(value = "deleteFileIdxs", required = false)
+            List<Long> deleteFileIdxs,
             @RequestParam(value = "actionToken", required = false)
             String actionToken,
             HttpSession session,
@@ -329,11 +339,22 @@ public class BoardController {
 
         try {
             boardService.updateBoard(
-                    board, (Long) session.getAttribute("loginMemberIdx"));
+                    board,
+                    (Long) session.getAttribute("loginMemberIdx"),
+                    (String) session.getAttribute("loginRole"),
+                    files,
+                    deleteFileIdxs);
+
         } catch (IllegalArgumentException e) {
+            BoardFileVO condition = new BoardFileVO();
+            condition.setBoardIdx(boardIdx);
+
             model.addAttribute("board", board);
             model.addAttribute("boardName", getBoardName(board.getBoardType()));
             model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute(
+                    "fileList", boardService.selectBoardFileList(condition));
+
             return "board/update";
         }
 

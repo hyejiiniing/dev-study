@@ -105,5 +105,16 @@
 	    WHERE boardIdx = #{boardIdx}
 	      AND memberIdx = #{memberIdx}
 	</delete>
+	
+	<select id="selectBoardForUpdate"
+	        parameterType="com.devstudy.vo.BoardVO"
+	        resultType="com.devstudy.vo.BoardVO">
+	    SELECT boardIdx,
+	           boardType,
+	           memberIdx
+	    FROM board
+	    WHERE boardIdx = #{boardIdx}
+	    FOR UPDATE
+	</select>
 
 </mapper>

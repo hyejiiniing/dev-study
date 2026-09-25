@@ -28,7 +28,12 @@ public interface BoardService {
             BoardFileVO vo) throws Exception;
     public BoardFileVO selectBoardFile(
             BoardFileVO vo) throws Exception;
-    
+    public int updateBoard(
+            BoardVO vo,
+            Long loginMemberIdx,
+            String loginRole,
+            List<MultipartFile> files,
+            List<Long> deleteFileIdxs) throws Exception;
     
     
 }

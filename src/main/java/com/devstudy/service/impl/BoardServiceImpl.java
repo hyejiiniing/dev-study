@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -376,5 +379,141 @@ public class BoardServiceImpl implements BoardService {
         }
 
         return boardFileMapper.selectBoardFile(vo);
+    }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int updateBoard(
+            BoardVO vo,
+            Long loginMemberIdx,
+            String loginRole,
+            List<MultipartFile> files,
+            List<Long> deleteFileIdxs) throws Exception {
+
+        validateBoardIdx(vo);
+        validateLogin(loginMemberIdx);
+
+        BoardVO board = boardMapper.selectBoardForUpdate(vo);
+
+        if (board == null
+                || !loginMemberIdx.equals(board.getMemberIdx())) {
+            throw new IllegalArgumentException(
+                    "게시글이 없거나 수정 권한이 없습니다.");
+        }
+
+        if (board.getBoardType() == 6 && !"ADMIN".equals(loginRole)) {
+            throw new IllegalArgumentException(
+                    "공지사항 변경 권한이 없습니다.");
+        }
+
+        BoardFileVO condition = new BoardFileVO();
+        condition.setBoardIdx(board.getBoardIdx());
+
+        List<BoardFileVO> existingFiles =
+                boardFileMapper.selectBoardFileList(condition);
+
+        Set<Long> deleteIds = new HashSet<>();
+
+        if (deleteFileIdxs != null) {
+            deleteIds.addAll(deleteFileIdxs);
+        }
+
+        Set<Long> existingIds = new HashSet<>();
+
+        for (BoardFileVO file : existingFiles) {
+            existingIds.add(file.getFileIdx());
+        }
+
+        if (!existingIds.containsAll(deleteIds)) {
+            throw new IllegalArgumentException(
+                    "삭제할 첨부파일이 올바르지 않습니다.");
+        }
+
+        List<MultipartFile> newFiles = new ArrayList<>();
+
+        if (files != null) {
+            for (MultipartFile file : files) {
+                if (file == null) {
+                    continue;
+                }
+
+                String name = file.getOriginalFilename();
+
+                if (file.isEmpty()
+                        && (name == null || name.isBlank())) {
+                    continue;
+                }
+
+                if (file.isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "빈 파일은 첨부할 수 없습니다.");
+                }
+
+                if (file.getSize() > 10L * 1024 * 1024) {
+                    throw new IllegalArgumentException(
+                            "파일 하나의 크기는 10MB 이하여야 합니다.");
+                }
+
+                newFiles.add(file);
+            }
+        }
+
+        int finalFileCount =
+                existingFiles.size() - deleteIds.size() + newFiles.size();
+
+        if (finalFileCount > 5) {
+            throw new IllegalArgumentException(
+                    "기존 파일과 새 파일을 합쳐 최대 5개까지 첨부할 수 있습니다.");
+        }
+
+        List<String> newStoredNames = new ArrayList<>();
+        List<String> oldStoredNames = new ArrayList<>();
+
+        TransactionSynchronizationManager.registerSynchronization(
+            new TransactionSynchronization() {
+
+                @Override
+                public void afterCommit() {
+                    removeStoredFiles(oldStoredNames);
+                }
+
+                @Override
+                public void afterCompletion(int status) {
+                    if (status == STATUS_ROLLED_BACK) {
+                        removeStoredFiles(newStoredNames);
+                    }
+                }
+            }
+        );
+
+        int result = updateBoard(vo, loginMemberIdx);
+
+        for (BoardFileVO file : existingFiles) {
+            if (deleteIds.contains(file.getFileIdx())) {
+
+                int deleted = boardFileMapper.deleteBoardFile(file);
+
+                if (deleted != 1) {
+                    throw new IllegalStateException(
+                            "첨부파일 정보 삭제에 실패했습니다.");
+                }
+
+                oldStoredNames.add(file.getStoredName());
+            }
+        }
+
+        for (MultipartFile file : newFiles) {
+            BoardFileVO savedFile = boardFileStorage.store(file);
+
+            newStoredNames.add(savedFile.getStoredName());
+            savedFile.setBoardIdx(board.getBoardIdx());
+
+            if (boardFileMapper.insertBoardFile(savedFile) != 1) {
+                throw new IllegalStateException(
+                        "첨부파일 정보 저장에 실패했습니다.");
+            }
+        }
+
+        return result;
     }
 }

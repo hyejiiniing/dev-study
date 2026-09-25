@@ -39,6 +39,31 @@
         </div>
 
         <div class="content"><c:out value="${board.content}"/></div>
+        
+        <c:if test="${not empty fileList}">
+		    <section class="attachments">
+		        <h2>첨부파일</h2>
+		
+		        <ul class="attachment-list">
+		            <c:forEach var="file" items="${fileList}">
+		                <c:url var="downloadUrl" value="/board/download">
+		                    <c:param name="boardIdx" value="${board.boardIdx}"/>
+		                    <c:param name="fileIdx" value="${file.fileIdx}"/>
+		                </c:url>
+		
+		                <li>
+		                    <a class="attachment-link"
+		                       href="<c:out value='${downloadUrl}'/>">
+		                        <span class="attachment-name">
+		                            <c:out value="${file.originalName}"/>
+		                        </span>
+		                        <span class="attachment-action">다운로드 ↓</span>
+		                    </a>
+		                </li>
+		            </c:forEach>
+		        </ul>
+		    </section>
+		</c:if>
     </article>
 
     <div class="actions">

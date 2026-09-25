@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.devstudy.mapper.BoardFileMapper">
+
+    <insert id="insertBoardFile"
+            parameterType="com.devstudy.vo.BoardFileVO"
+            useGeneratedKeys="true"
+            keyProperty="fileIdx">
+
+        INSERT INTO boardFile (
+            boardIdx,
+            originalName,
+            storedName,
+            fileSize,
+            contentType
+        ) VALUES (
+            #{boardIdx},
+            #{originalName},
+            #{storedName},
+            #{fileSize},
+            #{contentType}
+        )
+    </insert>
+
+    <select id="selectBoardFileList"
+            parameterType="com.devstudy.vo.BoardFileVO"
+            resultType="com.devstudy.vo.BoardFileVO">
+
+        SELECT fileIdx,
+               boardIdx,
+               originalName,
+               storedName,
+               fileSize,
+               contentType,
+               createdAt
+        FROM boardFile
+        WHERE boardIdx = #{boardIdx}
+        ORDER BY fileIdx ASC
+    </select>
+
+    <select id="selectBoardFile"
+            parameterType="com.devstudy.vo.BoardFileVO"
+            resultType="com.devstudy.vo.BoardFileVO">
+
+        SELECT fileIdx,
+               boardIdx,
+               originalName,
+               storedName,
+               fileSize,
+               contentType,
+               createdAt
+        FROM boardFile
+        WHERE fileIdx = #{fileIdx}
+          AND boardIdx = #{boardIdx}
+    </select>
+
+    <delete id="deleteBoardFile"
+            parameterType="com.devstudy.vo.BoardFileVO">
+
+        DELETE FROM boardFile
+        WHERE fileIdx = #{fileIdx}
+          AND boardIdx = #{boardIdx}
+    </delete>
+
+    <delete id="deleteBoardFiles"
+            parameterType="com.devstudy.vo.BoardFileVO">
+
+        DELETE FROM boardFile
+        WHERE boardIdx = #{boardIdx}
+    </delete>
+
+</mapper>

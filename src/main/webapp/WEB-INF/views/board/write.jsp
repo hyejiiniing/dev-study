@@ -177,7 +177,7 @@
     </c:if>
 
     <form action="${pageContext.request.contextPath}/board/write"
-          method="post">
+          method="post" enctype="multipart/form-data">
 
         <input type="hidden" name="boardType" value="${boardType}">
         <input type="hidden" name="writeToken"
@@ -198,17 +198,31 @@
                    value="<c:out value='${form.title}'/>"
                    placeholder="어떤 이야기를 나누고 싶나요?">
         </div>
+        
+        <div class="field">
+		    <label for="content">내용</label>
+		    <textarea id="content"
+		              name="content"
+		              rows="12"
+		              placeholder="내용을 자유롭게 작성해주세요."
+		              required><c:out value="${form.content}"/></textarea>
+		</div>
 
         <div class="field">
-            <label for="content">내용</label>
-            <textarea id="content" name="content"
-                      aria-describedby="content-hint"
-                      placeholder="내용을 자유롭게 작성해주세요."
-                      required><c:out value="${form.content}"/></textarea>
-            <p class="hint" id="content-hint">
-                본문은 일반 텍스트로 저장됩니다. 첨부파일은 추후 지원할 예정이에요.
-            </p>
-        </div>
+		    <label for="files">첨부파일 · 선택</label>
+		
+		    <input type="file"
+		           id="files"
+		           name="files"
+		           multiple
+		           accept=".png,.jpg,.jpeg,.pdf,.txt"
+		           aria-describedby="files-hint">
+		
+		    <p class="hint" id="files-hint">
+		        PNG, JPG, PDF, UTF-8 TXT · 최대 5개 · 파일당 10MB<br>
+		        등록 오류 후에는 파일을 다시 선택해주세요.
+		    </p>
+		</div>
 
         <div class="actions">
             <a class="button"

@@ -1,9 +1,21 @@
 package com.devstudy.controller;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -12,20 +24,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.devstudy.file.BoardFileStorage;
 import com.devstudy.service.BoardService;
 import com.devstudy.vo.BoardVO;
+import com.devstudy.vo.BoardFileVO;
 
 @Controller
 @RequestMapping("/board")
 public class BoardController {
 
     private final BoardService boardService;
+    private final BoardFileStorage boardFileStorage;
 
-    public BoardController(BoardService boardService) {
+    public BoardController(
+            BoardService boardService,
+            BoardFileStorage boardFileStorage) {
+
         this.boardService = boardService;
+        this.boardFileStorage = boardFileStorage;
     }
 
     @GetMapping("/list")
@@ -118,6 +138,8 @@ public class BoardController {
             @RequestParam(defaultValue = "") String title,
             @RequestParam(defaultValue = "") String content,
             @RequestParam(defaultValue = "") String category,
+            @RequestParam(value = "files", required = false)
+            List<MultipartFile> files,
             @RequestParam(value = "writeToken", required = false)
             String writeToken,
             HttpSession session,
@@ -152,7 +174,8 @@ public class BoardController {
             boardService.insertBoard(
                     vo,
                     loginMemberIdx,
-                    (String) session.getAttribute("loginRole"));
+                    (String) session.getAttribute("loginRole"),
+                    files);
         } catch (IllegalArgumentException e) {
             model.addAttribute("boardType", boardType);
             model.addAttribute("boardName", getBoardName(boardType));
@@ -200,10 +223,63 @@ public class BoardController {
         BoardVO board = findBoard(boardIdx);
 
         prepareBoardActionToken(session);
+
         model.addAttribute("board", board);
         model.addAttribute("boardName", getBoardName(board.getBoardType()));
 
+        BoardFileVO condition = new BoardFileVO();
+        condition.setBoardIdx(boardIdx);
+
+        model.addAttribute(
+                "fileList",
+                boardService.selectBoardFileList(condition));
+
         return "board/detail";
+    }
+    
+    @GetMapping("/download")
+    public ResponseEntity<Resource> download(
+            @RequestParam int boardIdx,
+            @RequestParam long fileIdx) throws Exception {
+
+        if (boardIdx <= 0 || fileIdx <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "올바르지 않은 파일 요청입니다.");
+        }
+
+        findBoard(boardIdx);
+
+        BoardFileVO condition = new BoardFileVO();
+        condition.setBoardIdx(boardIdx);
+        condition.setFileIdx(fileIdx);
+
+        BoardFileVO file = boardService.selectBoardFile(condition);
+
+        if (file == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "첨부파일을 찾을 수 없습니다.");
+        }
+
+        Path path = boardFileStorage.resolve(file.getStoredName());
+
+        if (!Files.isRegularFile(path) || !Files.isReadable(path)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "저장된 파일을 찾을 수 없습니다.");
+        }
+
+        Resource resource = new UrlResource(path.toUri());
+
+        String disposition = ContentDisposition.attachment()
+                .filename(file.getOriginalName(), StandardCharsets.UTF_8)
+                .build()
+                .toString();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentLength(Files.size(path))
+                .header(HttpHeaders.CONTENT_DISPOSITION, disposition)
+                .header("X-Content-Type-Options", "nosniff")
+                .body(resource);
     }
 
     @GetMapping("/update")

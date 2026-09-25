@@ -13,6 +13,12 @@ public class BoardVO  {
     private Integer viewCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
+    private String searchType = "all";
+    private String keyword = "";
+    private int page = 1;
+    private final int pageSize = 10;
+    
 	public Integer getBoardIdx() {
 		return boardIdx;
 	}
@@ -66,6 +72,45 @@ public class BoardVO  {
 	}
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+	public String getSearchType() {
+	    return searchType;
+	}
+
+	public void setSearchType(String searchType) {
+	    this.searchType = searchType;
+	}
+
+	public String getKeyword() {
+	    return keyword;
+	}
+
+	public void setKeyword(String keyword) {
+	    this.keyword = keyword;
+	}
+
+	public int getPage() {
+	    return page;
+	}
+
+	public void setPage(int page) {
+	    this.page = page;
+	}
+
+	public int getPageSize() {
+	    return pageSize;
+	}
+
+	public long getOffset() {
+	    return ((long) page - 1) * pageSize;
+	}
+
+	public String getSearchPattern() {
+	    String value = keyword == null ? "" : keyword;
+
+	    return "%" + value.replace("!", "!!")
+	                      .replace("%", "!%")
+	                      .replace("_", "!_") + "%";
 	}
     
 }

@@ -23,15 +23,52 @@ public class BoardServiceImpl implements BoardService {
     @Transactional(readOnly = true)
     public List<BoardVO> selectBoardList(BoardVO vo) throws Exception {
 
+        validateSearch(vo);
+
+        return boardMapper.selectBoardList(vo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long selectBoardCount(BoardVO vo) throws Exception {
+
+        validateSearch(vo);
+
+        return boardMapper.selectBoardCount(vo);
+    }
+
+    private void validateSearch(BoardVO vo) {
+
         if (vo == null
                 || vo.getBoardType() == null
                 || vo.getBoardType() < 1
                 || vo.getBoardType() > 6) {
             throw new IllegalArgumentException(
-                    "올바르지 않은 게시판 번호입니다.");
+                    "올바르지 않은 게시판입니다.");
         }
 
-        return boardMapper.selectBoardList(vo);
+        String searchType = vo.getSearchType();
+
+        if (!"all".equals(searchType)
+                && !"title".equals(searchType)
+                && !"content".equals(searchType)) {
+            throw new IllegalArgumentException(
+                    "올바르지 않은 검색 조건입니다.");
+        }
+
+        String keyword = vo.getKeyword() == null
+                ? "" : vo.getKeyword().strip();
+
+        if (keyword.length() > 100) {
+            throw new IllegalArgumentException(
+                    "검색어는 100자 이내로 입력해주세요.");
+        }
+
+        vo.setKeyword(keyword);
+
+        if (vo.getPage() < 1) {
+            vo.setPage(1);
+        }
     }
     
     @Override

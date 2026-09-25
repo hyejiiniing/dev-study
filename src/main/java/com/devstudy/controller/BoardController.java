@@ -31,6 +31,9 @@ public class BoardController {
     @GetMapping("/list")
     public String boardList(
             @RequestParam(defaultValue = "1") int boardType,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "all") String searchType,
+            @RequestParam(defaultValue = "") String keyword,
             Model model) throws Exception {
 
         if (boardType < 1 || boardType > 6) {
@@ -38,16 +41,50 @@ public class BoardController {
                     HttpStatus.BAD_REQUEST, "올바르지 않은 게시판입니다.");
         }
 
-        String[] boardNames = {
-            "", "커뮤니티", "AI", "자격증", "모임", "Q&A", "공지사항"
-        };
+        if (!"all".equals(searchType)
+                && !"title".equals(searchType)
+                && !"content".equals(searchType)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "올바르지 않은 검색 조건입니다.");
+        }
+
+        keyword = keyword.strip();
+
+        if (keyword.length() > 100) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "검색어는 100자 이내로 입력해주세요.");
+        }
 
         BoardVO vo = new BoardVO();
         vo.setBoardType(boardType);
+        vo.setSearchType(searchType);
+        vo.setKeyword(keyword);
+
+        long totalCount = boardService.selectBoardCount(vo);
+
+        long calculatedPages = totalCount / vo.getPageSize()
+                + (totalCount % vo.getPageSize() == 0 ? 0 : 1);
+
+        int totalPages = (int) Math.min(
+                Integer.MAX_VALUE, Math.max(1L, calculatedPages));
+
+        int currentPage = Math.min(Math.max(page, 1), totalPages);
+        vo.setPage(currentPage);
+
+        int startPage = ((currentPage - 1) / 5) * 5 + 1;
+        int endPage = (int) Math.min((long) startPage + 4, totalPages);
 
         model.addAttribute("boardType", boardType);
-        model.addAttribute("boardName", boardNames[boardType]);
+        model.addAttribute("boardName", getBoardName(boardType));
         model.addAttribute("boardList", boardService.selectBoardList(vo));
+
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
 
         return "board/list";
     }

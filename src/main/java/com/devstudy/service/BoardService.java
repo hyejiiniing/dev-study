@@ -11,5 +11,6 @@ public interface BoardService {
     public int insertBoard(BoardVO vo, Long loginMemberIdx, String loginRole) throws Exception;
     public int updateBoard(BoardVO vo, Long loginMemberIdx) throws Exception;
     public int deleteBoard(BoardVO vo, Long loginMemberIdx) throws Exception;
+    public long selectBoardCount(BoardVO vo) throws Exception;
     
 }

@@ -5,6 +5,27 @@
 
 <mapper namespace="com.devstudy.mapper.BoardMapper">
 
+	<sql id="boardSearchCondition">
+	    WHERE boardType = #{boardType}
+	
+	    <if test="keyword != null and keyword != ''">
+	        <choose>
+	            <when test="searchType == 'title'">
+	                AND title LIKE #{searchPattern} ESCAPE '!'
+	            </when>
+	            <when test="searchType == 'content'">
+	                AND content LIKE #{searchPattern} ESCAPE '!'
+	            </when>
+	            <otherwise>
+	                AND (
+	                    title LIKE #{searchPattern} ESCAPE '!'
+	                    OR content LIKE #{searchPattern} ESCAPE '!'
+	                )
+	            </otherwise>
+	        </choose>
+	    </if>
+	</sql>
+
     <select id="selectBoardList"
             parameterType="com.devstudy.vo.BoardVO"
             resultType="com.devstudy.vo.BoardVO">
@@ -17,10 +38,18 @@
                createdAt,
                updatedAt
         FROM board
-        WHERE boardType = #{boardType}
-        ORDER BY boardIdx DESC
-        LIMIT 20
+	        <include refid="boardSearchCondition"/>
+	    ORDER BY boardIdx DESC
+	    LIMIT #{pageSize} OFFSET #{offset}
     </select>
+    
+    <select id="selectBoardCount"
+	        parameterType="com.devstudy.vo.BoardVO"
+	        resultType="long">
+	    SELECT COUNT(*)
+	    FROM board
+	    <include refid="boardSearchCondition"/>
+	</select>
     
     <insert id="insertBoard"
 	        parameterType="com.devstudy.vo.BoardVO"

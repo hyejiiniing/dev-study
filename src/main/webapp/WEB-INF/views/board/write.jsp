@@ -158,7 +158,7 @@
 <body>
 <header>
     <a class="logo" href="${pageContext.request.contextPath}/home">
-        DevStudy.
+        DevStudy
     </a>
 </header>
 

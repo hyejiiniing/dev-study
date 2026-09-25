@@ -35,5 +35,7 @@ public interface BoardService {
             List<MultipartFile> files,
             List<Long> deleteFileIdxs) throws Exception;
     
+    public List<BoardVO> selectFaqList() throws Exception;
+    
     
 }

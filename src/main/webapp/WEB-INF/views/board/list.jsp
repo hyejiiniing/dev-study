@@ -329,7 +329,7 @@
     <div class="container header-inner">
         <a class="logo"
            href="${pageContext.request.contextPath}/home">
-            DevStudy.
+            DevStudy
         </a>
 
         <div class="account">
@@ -495,17 +495,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="board" items="${boardList}">
+                            <c:forEach var="board" items="${boardList}" varStatus="status">
                                 <tr>
-                                    <td class="number">
-                                        <c:out value="${board.boardIdx}"/>
-                                    </td>
-                                    <td>
-                                        <c:if test="${not empty board.category}">
-                                            <span class="category">
-                                                <c:out value="${board.category}"/>
-                                            </span>
-                                        </c:if>
+						            <td class="number">
+						                ${totalCount - (currentPage - 1) * 10 - status.index}
+						            </td>
+						
+						            <td>
+						                <c:if test="${not empty board.category}">
+						                    <span class="category">
+						                        <c:out value="${board.category}"/>
+						                    </span>
+						                </c:if>
                                         <a class="post-title"
 										   href="${pageContext.request.contextPath}/board/detail?boardIdx=${board.boardIdx}">
 										    <c:out value="${board.title}"/>

@@ -55,11 +55,16 @@ public class BoardController {
             @RequestParam(defaultValue = "all") String searchType,
             @RequestParam(defaultValue = "") String keyword,
             Model model) throws Exception {
-
+    	
         if (boardType < 1 || boardType > 6) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "올바르지 않은 게시판입니다.");
         }
+        
+        if (Integer.valueOf(5).equals(boardType)) {
+    	    model.addAttribute("faqList", boardService.selectFaqList());
+    	    return "board/faq";
+    	}
 
         if (!"all".equals(searchType)
                 && !"title".equals(searchType)
@@ -105,7 +110,7 @@ public class BoardController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
-
+        
         return "board/list";
     }
     

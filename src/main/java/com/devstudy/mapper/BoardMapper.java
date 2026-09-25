@@ -14,4 +14,6 @@ public interface BoardMapper {
 	public int deleteBoard(BoardVO vo) throws Exception;
 	public BoardVO selectBoardForUpdate(BoardVO vo) throws Exception;
 	
+	public List<BoardVO> selectFaqList() throws Exception;
+	
 }

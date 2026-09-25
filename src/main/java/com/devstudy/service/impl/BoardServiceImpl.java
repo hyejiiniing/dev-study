@@ -3,12 +3,11 @@ package com.devstudy.service.impl;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -176,7 +175,7 @@ public class BoardServiceImpl implements BoardService {
         return result;
     }
 
-    // 게시글 수정
+    // 수정
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int updateBoard(
@@ -185,8 +184,18 @@ public class BoardServiceImpl implements BoardService {
 
         validateBoardIdx(vo);
         validateLogin(loginMemberIdx);
-        validateContent(vo);
 
+        BoardVO existing = boardMapper.selectBoardForUpdate(vo);
+
+        if (existing == null
+                || !loginMemberIdx.equals(existing.getMemberIdx())) {
+            throw new IllegalArgumentException(
+                    "게시글이 없거나 수정 권한이 없습니다.");
+        }
+
+        vo.setBoardType(existing.getBoardType());
+
+        validateContent(vo);
         vo.setMemberIdx(loginMemberIdx);
 
         int updatedCount = boardMapper.updateBoard(vo);
@@ -336,6 +345,7 @@ public class BoardServiceImpl implements BoardService {
         vo.setTitle(title);
         vo.setContent(content);
         vo.setCategory(category.isEmpty() ? null : category);
+        validateCategory(vo);
     }
 
     private void removeStoredFiles(List<String> storedNames) {
@@ -404,6 +414,12 @@ public class BoardServiceImpl implements BoardService {
         if (board.getBoardType() == 6 && !"ADMIN".equals(loginRole)) {
             throw new IllegalArgumentException(
                     "공지사항 변경 권한이 없습니다.");
+        }
+        
+        if ((board.getBoardType() == 5 || board.getBoardType() == 6)
+                && !"ADMIN".equals(loginRole)) {
+            throw new IllegalArgumentException(
+                    "FAQ와 공지사항 변경 권한이 없습니다.");
         }
 
         BoardFileVO condition = new BoardFileVO();
@@ -515,5 +531,31 @@ public class BoardServiceImpl implements BoardService {
         }
 
         return result;
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<BoardVO> selectFaqList() throws Exception {
+        return boardMapper.selectFaqList();
+    }
+    
+    private void validateCategory(BoardVO vo) {
+
+        if (Integer.valueOf(5).equals(vo.getBoardType())) {
+            vo.setCategory("FAQ");
+
+        } else if (Integer.valueOf(3).equals(vo.getBoardType())) {
+            String category = vo.getCategory();
+
+            if (!"SQLD".equals(category)
+                    && !"ADSP".equals(category)
+                    && !"BIGDATA".equals(category)) {
+                throw new IllegalArgumentException(
+                        "자격증 분류를 선택해주세요.");
+            }
+
+        } else {
+            vo.setCategory(null);
+        }
     }
 }

@@ -6,6 +6,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+      href="${pageContext.request.contextPath}/resources/css/header.css">
+
 <title>글쓰기 | DevStudy</title>
 
 <style>
@@ -156,11 +159,7 @@
 </head>
 
 <body>
-<header>
-    <a class="logo" href="${pageContext.request.contextPath}/home">
-        DevStudy
-    </a>
-</header>
+<jsp:include page="/WEB-INF/views/common/header.jsp"/>
 
 <main>
     <p class="eyebrow">

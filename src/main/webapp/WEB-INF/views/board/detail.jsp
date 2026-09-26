@@ -8,14 +8,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><c:out value="${board.title}"/> | DevStudy</title>
     <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/resources/css/board.css">
+      href="${pageContext.request.contextPath}/resources/css/header.css">
+    <link rel="stylesheet"
+          href="${pageContext.request.contextPath}/resources/css/board.css">       
+
 </head>
 <body>
-<header>
-    <a class="logo" href="${pageContext.request.contextPath}/home">
-        DevStudy
-    </a>
-</header>
+<jsp:include page="/WEB-INF/views/common/header.jsp"/>
 
 <main>
     <p class="eyebrow">

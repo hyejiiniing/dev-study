@@ -9,13 +9,11 @@
     <title>글 수정 | DevStudy</title>
     <link rel="stylesheet"
           href="${pageContext.request.contextPath}/resources/css/board.css">
+    <link rel="stylesheet"
+      href="${pageContext.request.contextPath}/resources/css/header.css">
 </head>
 <body>
-<header>
-    <a class="logo" href="${pageContext.request.contextPath}/home">
-        DevStudy
-    </a>
-</header>
+<jsp:include page="/WEB-INF/views/common/header.jsp"/>
 
 <main>
     <p class="eyebrow">

@@ -6,6 +6,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+      href="${pageContext.request.contextPath}/resources/css/header.css">
 <title>DevStudy | 함께 만드는 성장</title>
 
 <style>
@@ -571,45 +573,7 @@
 </head>
 
 <body>
-<header class="header">
-    <div class="container header-inner">
-        <a class="logo"
-           href="${pageContext.request.contextPath}/home">
-            <span class="logo-mark" aria-hidden="true">&lt;/&gt;</span>
-            DevStudy
-        </a>
-
-        <nav class="nav" aria-label="메뉴">
-            <a href="${pageContext.request.contextPath}/board/list?boardType=1">커뮤니티</a>
-			<a href="${pageContext.request.contextPath}/board/list?boardType=2">AI</a>
-			<a href="${pageContext.request.contextPath}/board/list?boardType=3">자격증</a>
-			<a href="${pageContext.request.contextPath}/board/list?boardType=4">모임</a>
-			<a href="${pageContext.request.contextPath}/board/list?boardType=5">Q&amp;A</a>
-			<a href="${pageContext.request.contextPath}/board/list?boardType=6">공지사항</a>
-        </nav>
-
-        <div class="account">
-            <c:choose>
-                <c:when test="${not empty sessionScope.loginMemberIdx}">
-                    <span class="account-name">
-                        <strong>
-                            <c:out value="${sessionScope.loginNickname}"/>
-                        </strong>님
-                    </span>
-                </c:when>
-                <c:otherwise>
-                    <a href="${pageContext.request.contextPath}/member/signin">
-                        로그인
-                    </a>
-                    <a class="small-button"
-                       href="${pageContext.request.contextPath}/member/signup">
-                        회원가입 ↗
-                    </a>
-                </c:otherwise>
-            </c:choose>
-        </div>
-    </div>
-</header>
+<jsp:include page="/WEB-INF/views/common/header.jsp"/>
 
 <main class="container">
     <c:if test="${not empty successMessage}">

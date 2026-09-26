@@ -6,7 +6,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+      href="${pageContext.request.contextPath}/resources/css/header.css">
 <title><c:out value="${boardName}"/> | DevStudy</title>
+</head>
 
 <style>
     * { box-sizing: border-box; }
@@ -325,29 +328,7 @@
 </head>
 
 <body>
-<header>
-    <div class="container header-inner">
-        <a class="logo"
-           href="${pageContext.request.contextPath}/home">
-            DevStudy
-        </a>
-
-        <div class="account">
-            <c:choose>
-                <c:when test="${not empty sessionScope.loginMemberIdx}">
-                    <strong>
-                        <c:out value="${sessionScope.loginNickname}"/>
-                    </strong>님
-                </c:when>
-                <c:otherwise>
-                    <a href="${pageContext.request.contextPath}/member/signin">
-                        로그인 ↗
-                    </a>
-                </c:otherwise>
-            </c:choose>
-        </div>
-    </div>
-</header>
+<jsp:include page="/WEB-INF/views/common/header.jsp"/>
 
 <main class="container">
     <section class="intro">

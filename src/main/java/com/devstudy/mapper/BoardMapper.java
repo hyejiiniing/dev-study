@@ -3,6 +3,7 @@ package com.devstudy.mapper;
 import java.util.List;
 
 import com.devstudy.vo.BoardVO;
+import com.devstudy.vo.FaqVO;
 
 public interface BoardMapper {
 
@@ -14,6 +15,6 @@ public interface BoardMapper {
 	public int deleteBoard(BoardVO vo) throws Exception;
 	public BoardVO selectBoardForUpdate(BoardVO vo) throws Exception;
 	
-	public List<BoardVO> selectFaqList() throws Exception;
+	public List<FaqVO> selectFaqList() throws Exception;
 	
 }

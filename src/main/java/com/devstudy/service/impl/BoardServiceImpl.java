@@ -21,6 +21,7 @@ import com.devstudy.mapper.BoardMapper;
 import com.devstudy.service.BoardService;
 import com.devstudy.vo.BoardFileVO;
 import com.devstudy.vo.BoardVO;
+import com.devstudy.vo.FaqVO;
 
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -345,7 +346,6 @@ public class BoardServiceImpl implements BoardService {
         vo.setTitle(title);
         vo.setContent(content);
         vo.setCategory(category.isEmpty() ? null : category);
-        validateCategory(vo);
     }
 
     private void removeStoredFiles(List<String> storedNames) {
@@ -535,27 +535,7 @@ public class BoardServiceImpl implements BoardService {
     
     @Override
     @Transactional(readOnly = true)
-    public List<BoardVO> selectFaqList() throws Exception {
+    public List<FaqVO> selectFaqList() throws Exception {
         return boardMapper.selectFaqList();
-    }
-    
-    private void validateCategory(BoardVO vo) {
-
-        if (Integer.valueOf(5).equals(vo.getBoardType())) {
-            vo.setCategory("FAQ");
-
-        } else if (Integer.valueOf(3).equals(vo.getBoardType())) {
-            String category = vo.getCategory();
-
-            if (!"SQLD".equals(category)
-                    && !"ADSP".equals(category)
-                    && !"BIGDATA".equals(category)) {
-                throw new IllegalArgumentException(
-                        "자격증 분류를 선택해주세요.");
-            }
-
-        } else {
-            vo.setCategory(null);
-        }
     }
 }

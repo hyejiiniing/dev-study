@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.devstudy.vo.BoardVO;
 import com.devstudy.vo.BoardFileVO;
+import com.devstudy.vo.BoardVO;
+import com.devstudy.vo.FaqVO;
 
 public interface BoardService {
 
@@ -35,7 +36,7 @@ public interface BoardService {
             List<MultipartFile> files,
             List<Long> deleteFileIdxs) throws Exception;
     
-    public List<BoardVO> selectFaqList() throws Exception;
+    public List<FaqVO> selectFaqList() throws Exception;
     
     
 }

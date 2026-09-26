@@ -118,17 +118,13 @@
 	    FOR UPDATE
 	</select>
 	
-	<!-- FAQ 전체 조회 -->
-	<select id="selectFaqList" resultType="com.devstudy.vo.BoardVO">
-	    SELECT boardIdx,
-	           boardType,
-	           category,
-	           title,
-	           content
-	    FROM board
-	    WHERE boardType = 5
-	      AND category = 'FAQ'
-	    ORDER BY boardIdx DESC
+	<select id="selectFaqList" resultType="com.devstudy.vo.FaqVO">
+	    SELECT faqIdx,
+	           question,
+	           answer
+	    FROM faq
+	    WHERE isVisible = 1
+	    ORDER BY sortOrder ASC, faqIdx DESC
 	</select>
 
 </mapper>

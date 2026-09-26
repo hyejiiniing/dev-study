@@ -458,4 +458,31 @@ public class BoardController {
                     "화면을 새로 열고 다시 시도해주세요.");
         }
     }
+    
+    @GetMapping("/admin/faq/list")
+    public String adminFaqList(
+            HttpSession session,
+            Model model) throws Exception {
+
+        checkFaqAdmin(session);
+
+        model.addAttribute("faqList", boardService.selectFaqList());
+
+        return "admin/faq/list";
+    }
+
+    private void checkFaqAdmin(HttpSession session) {
+
+        if (session.getAttribute("loginMemberIdx") == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "로그인이 필요합니다.");
+        }
+
+        if (!"ADMIN".equals(session.getAttribute("loginRole"))) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "관리자만 접근할 수 있습니다.");
+        }
+    }
 }

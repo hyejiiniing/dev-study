@@ -10,11 +10,8 @@ public interface BoardFileMapper {
 
     public List<BoardFileVO> selectBoardFileList(
             BoardFileVO vo) throws Exception;
-
     public BoardFileVO selectBoardFile(
             BoardFileVO vo) throws Exception;
-
     public int deleteBoardFile(BoardFileVO vo) throws Exception;
-
     public int deleteBoardFiles(BoardFileVO vo) throws Exception;
 }

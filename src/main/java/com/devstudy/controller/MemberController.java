@@ -138,4 +138,12 @@ public class MemberController {
 
         return "redirect:/home";
     }
+    
+    @PostMapping("/logout")
+    public String logout(HttpSession session) {
+
+        session.invalidate();
+
+        return "redirect:/home";
+    }
 }
